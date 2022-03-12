@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -92,7 +94,7 @@ public class ShardingTest {
     @Test
     public void addUser() {
         User user = new User();
-        user.setUserName("tommy");
+        user.setUserName("tommy3");
         user.setUserStatus("normal");
         assertEquals(1, userMapper.insert(user));
     }
@@ -100,10 +102,10 @@ public class ShardingTest {
     @Test
     public void findUser() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id",709435602012995585L);
+        wrapper.eq("user_id",709481426554191873L);
         User user = userMapper.selectOne(wrapper);
         assertNotNull(user);
-        assertEquals("tommy", user.getUserName());
+        assertEquals("tommy3", user.getUserName());
         assertEquals("normal", user.getUserStatus());
     }
 

@@ -14,7 +14,7 @@ spring:
     #数据库信息
     datasource:
       # 分片名称
-      names: m1,m2,m0,s0
+      names: m1,m2,m0
       # 分片连接信息-1
       m1:
         type: ${my.db.type}
@@ -36,22 +36,9 @@ spring:
         url: ${my.db.url.pre}user_db${my.db.url.suf}
         username: ${my.db.username}
         password: ${my.db.password}
-      # 从库
-      s0:
-        type: ${my.db.type}
-        driver-class-name: ${my.db.driver-class-name}
-        url: ${myslave.db.url.pre}user_db${my.db.url.suf}
-        username: ${myslave.db.username}
-        password: ${myslave.db.password}
     #指定数据库分布情况，以及数据库表的分布情况
     #m1 m2  course_1 course_2
     sharding:
-      # 主从配置
-      master-slave-rules:
-         #主从数据库名
-         ds0:
-            master-data-source-name: m0
-            slave-data-source-names: s0
       #默认分库策略
 #      default-database-strategy:
 #        inline:
@@ -84,8 +71,7 @@ spring:
               algorithm-expression: m$->{user_id % 2 + 1}
         #user表
         t_user:
-          #actual-data-nodes: m$->{0}.t_user
-          actual-data-nodes: ds0.t_user
+          actual-data-nodes: m$->{0}.t_user
           key-generator:
             column: user_id
             type: SNOWFLAKE
