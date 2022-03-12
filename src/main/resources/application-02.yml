@@ -1,0 +1,56 @@
+# 水平分库分表配置
+server:
+  port: 8201
+
+spring:
+  main:
+    #一个实体类对应多张表允许覆盖
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    #日志
+    props:
+      sql:
+        show: true
+    #数据库信息
+    datasource:
+      # 分片名称
+      names: m1,m2
+      # 分片连接信息-1
+      m1:
+        type: ${my.db.type}
+        driver-class-name: ${my.db.driver-class-name}
+        url: ${my.db.url.pre}sharding_1${my.db.url.suf}
+        username: ${my.db.username}
+        password: ${my.db.password}
+      # 分片连接信息-2
+      m2:
+        type: ${my.db.type}
+        driver-class-name: ${my.db.driver-class-name}
+        url: ${my.db.url.pre}sharding_2${my.db.url.suf}
+        username: ${my.db.username}
+        password: ${my.db.password}
+    #指定数据库分布情况，以及数据库表的分布情况
+    #m1 m2  course_1 course_2
+    sharding:
+      #默认分库策略
+#      default-database-strategy:
+#        inline:
+#          sharding-column: user_id
+#          algorithm-expression: m$->{user_id % 2 + 1}
+      tables:
+        course:
+          actual-data-nodes: m$->{1..2}.course_$->{1..2}
+          key-generator:
+            column: cid
+            type: SNOWFLAKE
+          #指定表分片策略，约定cid值偶数添加到course_1表，如果cid是奇数添加到course_2表
+          #指定数据库分片策略，约定user_id是偶数添加m1,是奇数添加到m2
+          table-strategy:
+            inline:
+              sharding-column: cid
+              algorithm_expression: course_$->{cid % 2 + 1}
+          #具体表的分库策略
+          database-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: m$->{user_id % 2 + 1}

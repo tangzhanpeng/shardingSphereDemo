@@ -1,0 +1,43 @@
+server:
+  port: 8201
+
+spring:
+  main:
+    #一个实体类对应多张表允许覆盖
+    allow-bean-definition-overriding: true
+  #普通库配置信息
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://study:3306/sharding?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true&useSSL=false
+    username: root
+    password: tang0011
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  shardingsphere:
+    #日志
+    props:
+      sql:
+        show: true
+    #数据库信息
+    datasource:
+      # 分片名称
+      names: m1
+      # 分片连接信息
+      m1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://study:3306/sharding?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true&useSSL=false
+        username: root
+        password: tang0011
+    #指定course表分布情况，配置表在哪个数据库里面，表名称都是什么
+    sharding:
+      tables:
+        course:
+          actual-data-nodes: m1.course_$->{1..2}
+          key-generator:
+            column: cid
+            type: SNOWFLAKE
+          #指定分片策略，约定cid值偶数添加到course_1表，如果cid是奇数添加到course_2表
+          table-strategy:
+            inline:
+              sharding-column: cid
+              algorithm_expression: course_$->{cid % 2 + 1}
